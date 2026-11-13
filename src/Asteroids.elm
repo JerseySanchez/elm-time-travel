@@ -255,6 +255,7 @@ randomAsteroidShape radius seed0 =
         )
   in
     List.foldl addRandomVertex ([], seed0) (List.range 1 vertexCount)
+    
 
 ------ Helpers ------
 

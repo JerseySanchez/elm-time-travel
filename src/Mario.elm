@@ -32,6 +32,7 @@ initialState =
   , vy = 0
   , dir = Right
   , trace = []
+  , jumps = 0
   }
 
 type XDirection = Left | Right
@@ -45,10 +46,17 @@ view computer mario =
     h = computer.screen.height
     b = computer.screen.bottom
     convertY y = (b + 76 + y)
+    jump = String.fromInt mario.jumps
   in
     [ rectangle (rgb 174 238 238) w h  -- sky
     , rectangle (rgb 74 163 41) w 100  -- ground
         |> moveY b
+    , words black "Jump Counter:" 
+       |> moveY (h/2-50)
+       |> moveX (-w/2.5)
+    , words red jump
+      |> moveY (h/2-75)
+      |> moveX (-w/2.5)
     , mario.trace
         |> pathToPolygonVertices 1.5
         |> polygon black
@@ -93,9 +101,15 @@ update computer mario =
         gravityApplied
       else
         min jumpCutoff gravityApplied  -- jump key released, limit speed to allow var height jumps
+    newJumps = 
+      if mario.y == 0 && computer.keyboard.up then
+        mario.jumps + 1 
+      else 
+        mario.jumps
 
     newX = mario.x + dt * vx
     newY = max 0 (mario.y + dt * vy)
+
   in
     { mario
       | x = newX
@@ -110,6 +124,7 @@ update computer mario =
           else
             mario.dir  -- face direction of last movement when standing still
       , trace = addPointUnlessDuplicate (newX, newY) mario.trace
+      , jumps = newJumps
     }
 
 addPointUnlessDuplicate point path =
